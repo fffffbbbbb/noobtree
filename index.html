@@ -207,17 +207,22 @@
         }
 
         /* 弹窗主体 */
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            width: 80%;
-            max-width: 500px;
-            position: relative;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    /* --- 新增/修改字体样式 --- */
+    font-family: "SimSun", "宋体", serif;
+    font-size: 20px; /* 设置基础字体大小 */
+    color: #333; /* 设置基础文字颜色 */
+    /* --- 新增/修改字体样式结束 --- */
+}
 
          /* 弹窗主体 - 显示状态 */
         #modal-overlay.show .modal-content {
@@ -646,7 +651,7 @@
                     // --- 新增内容：添加警告文本 ---
                     const warningText1 = document.createElement('div');
                     warningText1.className = 'warning-text';
-                    warningText1.textContent = '一般选最便宜的45USD的包购买，运气好能碰到游戏节日打折40.50USD的资格包';
+                    warningText1.textContent = '一般选最便宜的45USD的包购买，运气好能碰到游戏节日打折40.50USD或者带有（LTI）永久保险标志（有这个优先选这个）的资格包';
                     const warningText2 = document.createElement('div');
                     warningText2.className = 'warning-text';
                     warningText2.textContent = '资格包包含游戏资格和一艘最基础的飞船，可在官网机库里查看';
@@ -732,26 +737,27 @@
 
                 } else if (taskId === 'task6') {
                     // 42中队任务
-                    modalContentArea.innerHTML = '<p>加入42中队 (中文社区)：</p>';
+                    modalContentArea.innerHTML = '<p>42中队：</p>';
                     
                     const infoText1 = document.createElement('div');
                     infoText1.className = 'info-text';
-                    infoText1.textContent = '42中队是一个活跃的中文玩家组织。';
+                    infoText1.textContent = '42中队是cig真正的开发目标，星际公民是为42中队筹集资金的项目';
                     const infoText2 = document.createElement('div');
                     infoText2.className = 'info-text';
-                    infoText2.textContent = '他们提供新手指导、组织活动和舰队作战。';
+                    infoText2.textContent = '42中队已经基本完成，进入打磨优化阶段，预计26年发售';
                     const infoText3 = document.createElement('div');
                     infoText3.className = 'info-text';
-                    infoText3.textContent = 'QQ群、Discord服务器等联系方式可以在社区找到。';
+                    // 创建一个 <a> 元素作为超链接
+const link = document.createElement('a');
+link.href = 'https://www.bilibili.com/video/BV1dSyeYkE4w/?spm_id_from=333.337.search-card.all.click&vd_source=e78ad6402f3fd4fa97ff6c816561c6b2';
+link.textContent = '42中队实机演示（点击查看）';
+link.target = '_blank'; // 在新标签页打开链接
+// 将链接添加到 infoText3 这个 div 中
+infoText3.appendChild(link);
                     
                     modalContentArea.appendChild(infoText1);
                     modalContentArea.appendChild(infoText2);
                     modalContentArea.appendChild(infoText3);
-
-                    const warningText = document.createElement('div');
-                    warningText.className = 'warning-text';
-                    warningText.textContent = '加入任何组织前，请先了解其文化和规则。';
-                    modalActions.appendChild(warningText);
 
                 } else {
                     // 默认内容
