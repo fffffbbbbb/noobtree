@@ -322,7 +322,7 @@
     margin-bottom: 15px;
     overflow: hidden;
     border-radius: 4px;
-    cursor: pointer;
+    /* cursor: pointer; 移除指针 */
 }
 
 .carousel-slide {
@@ -334,7 +334,7 @@
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    cursor: pointer;
+    /* cursor: pointer; 移除指针 */
 }
 
 .carousel-slide.active {
@@ -384,94 +384,98 @@
     right: 10px;
 }
 
-/* --- 全屏查看器样式 --- */
-#image-viewer {
+
+/* --- 新增全屏轮播图查看器样式 --- */
+#fullscreen-viewer {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    display: flex;
+    background-color: rgba(0, 0, 0, 0.95); /* 半透明黑色背景 */
+    z-index: 10000; /* 确保在最上层 */
+    display: none; /* 默认隐藏 */
     justify-content: center;
     align-items: center;
-    z-index: 10000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
+    flex-direction: column;
 }
 
-#image-viewer.show {
-    opacity: 1;
-    visibility: visible;
+#fullscreen-viewer.show {
+    display: flex;
 }
 
-.viewer-content {
-    position: relative;
-    width: 75vw;
-    height: 75vh;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.viewer-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    padding: 15px;
-    cursor: pointer;
-    font-size: 24px;
-    border-radius: 50%;
-    z-index: 10;
-}
-
-.viewer-prev {
-    left: 20px;
-}
-
-.viewer-next {
-    right: 20px;
-}
-
-.viewer-close {
+#fullscreen-close-btn {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+    background: none;
     border: none;
-    padding: 10px 15px;
+    color: white;
+    font-size: 32px;
     cursor: pointer;
-    font-size: 20px;
-    border-radius: 50%;
-    z-index: 10;
+    z-index: 10001;
 }
 
-.viewer-dots {
-    position: absolute;
-    bottom: 20px;
-    left: 0;
-    right: 0;
+#fullscreen-close-btn:hover {
+    color: #ccc;
+}
+
+#fullscreen-image-container {
+    position: relative;
+    width: 90%;
+    height: 80%;
     display: flex;
     justify-content: center;
-    gap: 10px;
+    align-items: center;
+    overflow: hidden;
 }
 
-.viewer-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.5);
+#fullscreen-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* 保持图片比例 */
+    border-radius: 4px;
+}
+
+#fullscreen-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+#fullscreen-prev-btn, #fullscreen-next-btn {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 24px;
     cursor: pointer;
+    border-radius: 5px;
+    z-index: 10001;
 }
 
-.viewer-dot.active {
-    background-color: #fff;
+#fullscreen-prev-btn:hover, #fullscreen-next-btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
 }
+
+#fullscreen-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 18px;
+    z-index: 10001;
+}
+
+/* --- 新增全屏轮播图查看器样式结束 --- */
+
+
     </style>
 </head>
 <body>
@@ -482,7 +486,7 @@
     <div id="zoom-pan-container">
         <!-- 内容包装器 -->
         <div class="content-wrapper">
-<!---------------------------------------------------------------------------------------------------- 任务框 -----------------------------------------------------------------------------------------------------------------------------------------> 
+<!---------------------------------------------------------------------------------------------------- 任务框 ----------------------------------------------------------------------------------------------------------------------------------------->
             <div id="task1" class="task-box" data-task-id="task1" style="top: 20%; left: 50%; transform: translateX(-50%);">注册账号</div>
             <div id="task2" class="task-box" data-task-id="task2" style="top: 40%; left: 50%; transform: translateX(-50%);">购买资格包</div>
             <div id="task2.1" class="task-box" data-task-id="task2.1" style="top: 60%; left: 50%; transform: translateX(-50%);">准备启动器</div>
@@ -551,14 +555,19 @@
     </audio>
     <!-- --- 新增隐藏的音频元素结束 --- -->
 
-    <!-- 全屏图片查看器 -->
-<div id="image-viewer">
-    <button class="viewer-close">×</button>
-    <button class="viewer-nav viewer-prev">&#10094;</button>
-    <div class="viewer-content" id="viewer-image"></div>
-    <button class="viewer-nav viewer-next">&#10095;</button>
-    <div class="viewer-dots" id="viewer-dots"></div>
-</div>
+    <!-- --- 新增全屏图片查看器 HTML 结构 --- -->
+    <div id="fullscreen-viewer">
+        <button id="fullscreen-close-btn">&times;</button>
+        <div id="fullscreen-image-container">
+            <img id="fullscreen-image" src="" alt="Fullscreen Image">
+            <div id="fullscreen-nav">
+                <button id="fullscreen-prev-btn">&#10094;</button>
+                <button id="fullscreen-next-btn">&#10095;</button>
+            </div>
+            <div id="fullscreen-counter">1 / 1</div>
+        </div>
+    </div>
+    <!-- --- 新增全屏图片查看器 HTML 结构结束 --- -->
 
     <script>
         // 创建星空背景
@@ -763,6 +772,52 @@
         let currentTaskBox = null; // 用来记录当前打开弹窗的任务框
         let cycleCount = {}; // 用来记录每个任务框的周期数 { taskId: count }
 
+        // ---------------------------------------------------------------------------------------------------------------------- 新增：任务轮播图图片数据 -------------------------------------------------------------------------------------------------
+        const taskCarouselImages = {
+            'task1': ['注册账号1.png', '注册账号2.png',],
+            'task2': ['购买资格包1.png','购买资格包2.png'], // 示例，替换为实际图片路径
+            'task2.1': ['准备启动器1.png', '准备启动器2.png'], // 示例
+            'task2.2': ['汉化1.png', '汉化2.png'], // 示例
+            'task3': ['社区1.png', '社区2.png'], // 示例
+            'task4': ['官网1.png', '官网2.png'], // 示例
+            'task5': ['星际公民1.png', '星际公民2.png'], // 示例
+            'task6': ['42中队1.png', '42中队2.png'], // 示例
+        };
+        // -----------------------------------------------------------------------------------------------------------------------轮播--------------------------------------------------------------------------------------------------------------------
+
+        // --- 新增：通用轮播图HTML生成函数 ---
+        function generateCarouselHTML(taskId, images) {
+            if (!images || images.length === 0) {
+                return '<p>暂无图片</p>';
+            }
+
+            const carouselId = `carousel-${taskId}`;
+            let carouselHTML = `<div class="carousel-container" id="${carouselId}">`;
+
+            // 生成幻灯片
+            images.forEach((imgSrc, index) => {
+                const isActive = index === 0 ? 'active' : '';
+                carouselHTML += `<div class="carousel-slide ${isActive}" style="background-image: url('${imgSrc}');"></div>`;
+            });
+
+            // 生成导航按钮
+            carouselHTML += `
+                <button class="carousel-nav carousel-prev">&#10094;</button>
+                <button class="carousel-nav carousel-next">&#10095;</button>
+                <div class="carousel-controls">`;
+
+            // 生成指示器
+            images.forEach((_, index) => {
+                const isActive = index === 0 ? 'active' : '';
+                carouselHTML += `<span class="carousel-dot ${isActive}" data-index="${index}"></span>`;
+            });
+
+            carouselHTML += `</div></div>`;
+            return carouselHTML;
+        }
+        // --- 新增结束 ---
+
+
         // 点击任务框打开弹窗
         document.querySelectorAll('.task-box').forEach(task => {
             task.addEventListener('click', (e) => {
@@ -785,89 +840,45 @@
                 // 设置标题
                 modalTitle.textContent = `任务目标: ${taskText}`;
 
+                // --- 修改：使用通用函数生成轮播图内容 ---
+                const imagesForThisTask = taskCarouselImages[taskId] || [];
+                const carouselHTML = generateCarouselHTML(taskId, imagesForThisTask);
+                modalContentArea.innerHTML = carouselHTML;
+                // --- 修改结束 ---
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // 根据任务ID设置不同的内容
+                // 根据任务ID设置不同的内容和按钮
                 if (taskId === 'task1') {
-                    if (taskId === 'task1') {
-    // 父级任务显示注册按钮和轮播图
-    modalContentArea.innerHTML = `
-        <div class="carousel-container" id="register-carousel">
-            <div class="carousel-slide active" style="background-image: url('注册账号1.png');"></div>
-            <div class="carousel-slide" style="background-image: url('注册账号2.png');"></div>
-            <button class="carousel-nav carousel-prev">&#10094;</button>
-            <button class="carousel-nav carousel-next">&#10095;</button>
-            <div class="carousel-controls">
-                <span class="carousel-dot active" data-index="0"></span>
-                <span class="carousel-dot" data-index="1"></span>
-            </div>
-        </div>`;
-    
-}
-    
-    const registerBtn = document.createElement('a');
-    registerBtn.href = 'https://robertsspaceindustries.com/en/enlist?referral=STAR-9KWF-Y7CS';
-    registerBtn.target = '_blank';
-    registerBtn.className = 'register-btn';
-    registerBtn.textContent = '立即注册';
-    registerBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-    modalActions.appendChild(registerBtn);
-
-    const warningText1 = document.createElement('div');
-    warningText1.className = 'warning-text';
-    warningText1.textContent = '慎重选择163邮箱注册，易被撞库洗号';
-    const warningText2 = document.createElement('div');
-    warningText2.className = 'warning-text';
-    warningText2.textContent = '初始邮箱权重大，勿用非本人邮箱注册';
-    modalActions.appendChild(warningText1);
-    modalActions.appendChild(warningText2);
-    
-    // 初始化轮播图（无自动播放）
-    initCarousel();
-      
-                } else if (taskId === 'task2') {
-                    // 子级任务显示与父级相同的布局，但链接不同
-                    modalContentArea.innerHTML = '<p>购买游戏资格包：</p>';
                     const registerBtn = document.createElement('a');
-                    registerBtn.href = 'https://robertsspaceindustries.com/en/store/pledge/browse/game-packages';
-                    registerBtn.target = '_blank'; // 在新标签页打开
+                    registerBtn.href = 'https://robertsspaceindustries.com/en/enlist?referral=STAR-9KWF-Y7CS';
+                    registerBtn.target = '_blank';
                     registerBtn.className = 'register-btn';
-                    registerBtn.textContent = '购买资格包';
+                    registerBtn.textContent = '立即注册';
                     registerBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // 阻止事件冒泡
-                        // 链接会在新标签页打开，不需要额外处理
+                        e.stopPropagation();
                     });
                     modalActions.appendChild(registerBtn);
 
-                    // --- 新增内容：添加警告文本 ---
+                    const warningText1 = document.createElement('div');
+                    warningText1.className = 'warning-text';
+                    warningText1.textContent = '慎重选择163邮箱注册，易被撞库洗号';
+                    const warningText2 = document.createElement('div');
+                    warningText2.className = 'warning-text';
+                    warningText2.textContent = '初始邮箱权重大，勿用非本人邮箱注册';
+                    modalActions.appendChild(warningText1);
+                    modalActions.appendChild(warningText2);
+                    
+                } else if (taskId === 'task2') {
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>购买游戏资格包：</p>');
+                    const registerBtn = document.createElement('a');
+                    registerBtn.href = 'https://robertsspaceindustries.com/en/store/pledge/browse/game-packages';
+                    registerBtn.target = '_blank';
+                    registerBtn.className = 'register-btn';
+                    registerBtn.textContent = '购买资格包';
+                    registerBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                    modalActions.appendChild(registerBtn);
+
                     const warningText1 = document.createElement('div');
                     warningText1.className = 'warning-text';
                     warningText1.textContent = '一般选最便宜的45USD的包购买，运气好能碰到游戏节日打折40.50USD或者带有（LTI）永久保险标志（有这个优先选这个）的资格包';
@@ -876,47 +887,38 @@
                     warningText2.textContent = '资格包包含游戏资格和一艘最基础的飞船，可在官网机库里查看';
                     modalActions.appendChild(warningText1);
                     modalActions.appendChild(warningText2);
-                    // --- 新增内容结束 ---
-
 
                 } else if (taskId === 'task2.1') {
-                    // 子级任务显示与父级相同的布局，但链接不同
-                    modalContentArea.innerHTML = '<p>获取启动器：</p>';
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>获取启动器：</p>');
                     const registerBtn = document.createElement('a');
                     registerBtn.href = 'https://install.robertsspaceindustries.com/rel/2/RSI%20Launcher-Setup-2.3.1.exe?_gl=1*1tno1qc*_gcl_au*MTk4NTI0MDU1OC4xNzQxNTM0MzM5LjUzNTY2OTk0MC4xNzQ0NDYwNDE4LjE3NDQ0NjA0MTc.*_ga*MzQ1NDIwMDY2LjE3NDE1MzQzMzk.*_ga_V6MWYXRQNP*MTc0NDcxNjU5MS4yNy4xLjE3NDQ3MjE2MTguNDMuMC4w';
-                    registerBtn.target = '_blank'; // 在新标签页打开
+                    registerBtn.target = '_blank';
                     registerBtn.className = 'register-btn';
                     registerBtn.textContent = '下载启动器';
                     registerBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // 阻止事件冒泡
-                        // 链接会在新标签页打开，不需要额外处理
+                        e.stopPropagation();
                     });
                     modalActions.appendChild(registerBtn);
 
                 } else if (taskId === 'task2.2') {
-                    // 子级任务显示与父级相同的布局，但链接不同
-                    modalContentArea.innerHTML = '<p>汉化补丁：</p>';
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>汉化补丁：</p>');
                     const registerBtn = document.createElement('a');
                     registerBtn.href = 'https://citizenwiki.cn/Localization';
-                    registerBtn.target = '_blank'; // 在新标签页打开
+                    registerBtn.target = '_blank';
                     registerBtn.className = 'register-btn';
                     registerBtn.textContent = '汉化组官网';
                     registerBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // 阻止事件冒泡
-                        // 链接会在新标签页打开，不需要额外处理
+                        e.stopPropagation();
                     });
                     modalActions.appendChild(registerBtn);
 
-                    // --- 新增内容：添加警告文本 ---
                     const warningText1 = document.createElement('div');
                     warningText1.className = 'warning-text';
                     warningText1.textContent = '新手推荐选择汉化组官网的<sc汉化盒子>来完成启动器和游戏本体的汉化（网站抽风就直接在系统的微软商店里下载）';
                     modalActions.appendChild(warningText1);
-                    // --- 新增内容结束 ---
 
                 } else if (taskId === 'task3') {
-                    // 社区任务
-                    modalContentArea.innerHTML = '<p>了解社区：</p>';
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>了解社区：</p>');
                     
                     const infoText1 = document.createElement('div');
                     infoText1.className = 'info-text';
@@ -932,10 +934,8 @@
                     modalContentArea.appendChild(infoText2);
                     modalContentArea.appendChild(infoText3);
 
-
                 } else if (taskId === 'task4') {
-                    // 官网任务
-                    modalContentArea.innerHTML = '<p>探索官方网站，获取最新资讯：</p>';
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>探索官方网站，获取最新资讯：</p>');
                     
                     const infoText1 = document.createElement('div');
                     infoText1.className = 'info-text';
@@ -955,10 +955,8 @@
                     modalContentArea.appendChild(infoText3);
                     modalContentArea.appendChild(infoText4);
 
-
                 } else if (taskId === 'task5') {
-                    // 星际公民任务
-                    modalContentArea.innerHTML = '<p>深入了解游戏本身：</p>';
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>深入了解游戏本身：</p>');
                     
                     const infoText1 = document.createElement('div');
                     infoText1.className = 'info-text';
@@ -984,8 +982,7 @@
                     modalActions.appendChild(warningText);
 
                 } else if (taskId === 'task6') {
-                    // 42中队任务
-                    modalContentArea.innerHTML = '<p>42中队：</p>';
+                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>42中队：</p>');
                     
                     const infoText1 = document.createElement('div');
                     infoText1.className = 'info-text';
@@ -995,12 +992,10 @@
                     infoText2.textContent = '42中队已经基本完成，进入打磨优化阶段，预计26年发售';
                     const infoText3 = document.createElement('div');
                     infoText3.className = 'info-text';
-                    // 创建一个 <a> 元素作为超链接
                     const link = document.createElement('a');
                     link.href = 'https://www.bilibili.com/video/BV1dSyeYkE4w/?spm_id_from=333.337.search-card.all.click&vd_source=e78ad6402f3fd4fa97ff6c816561c6b2';
                     link.textContent = '42中队实机演示（点击查看）';
-                    link.target = '_blank'; // 在新标签页打开链接
-                    // 将链接添加到 infoText3 这个 div 中
+                    link.target = '_blank';
                     infoText3.appendChild(link);
                     
                     modalContentArea.appendChild(infoText1);
@@ -1008,9 +1003,14 @@
                     modalContentArea.appendChild(infoText3);
 
                 } else {
-                    // 默认内容
+                    // 默认内容，如果需要可以保留或修改
                     modalContentArea.innerHTML = '<p>请根据任务要求完成相关操作。</p>';
                 }
+
+                // --- 修改：为当前弹窗中的轮播图初始化控制 ---
+                // 注意：这里调用 initCarousel 时传入了 taskId
+                initCarousel(taskId);
+                // --- 修改结束 ---
 
                 // 显示弹窗
                 modalOverlay.classList.add('show');
@@ -1031,7 +1031,7 @@
              // 处理任务框状态 (所有任务都有变色周期)
              if (currentTaskBox) {
                  const taskId = currentTaskBox.id;
-                 // 增加该任务的周期计数
+                 // 增加该任务的周期数
                  cycleCount[taskId] = (cycleCount[taskId] || 0) + 1;
 
                  if (cycleCount[taskId] === 1) {
@@ -1057,7 +1057,7 @@
             console.log("Window loaded. Creating stars and drawing lines.");
             createStars();
             drawAllLines();
-            initImageViewer();
+            // initImageViewer(); // 移除初始化全屏查看器
         });
 
         // 如果窗口大小改变，重新绘制连接线
@@ -1182,220 +1182,180 @@
         }
 
 
-         // 轮播图控制函数（无自动播放）
-function initCarousel() {
-    const carousel = document.getElementById('register-carousel');
-    if (!carousel) return;
-    
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const dots = carousel.querySelectorAll('.carousel-dot');
-    const prevBtn = carousel.querySelector('.carousel-prev');
-    const nextBtn = carousel.querySelector('.carousel-next');
-    
-    let currentSlide = 0;
-    
-    // 切换到指定幻灯片
-    function goToSlide(index) {
-        // 边界检查
-        if (index < 0) index = slides.length - 1;
-        if (index >= slides.length) index = 0;
-        
-        // 更新幻灯片
-        slides.forEach(slide => slide.classList.remove('active'));
-        dots.forEach(dot => dot.classList.remove('active'));
-        
-        slides[index].classList.add('active');
-        dots[index].classList.add('active');
-        
-        currentSlide = index;
-    }
-    
-    // 下一张幻灯片
-    function nextSlide() {
-        goToSlide(currentSlide + 1);
-    }
-    
-    // 上一张幻灯片
-    function prevSlide() {
-        goToSlide(currentSlide - 1);
-    }
-    
-    // 打开全屏查看器
-    function openViewer() {
-        const viewer = document.getElementById('image-viewer');
-        const viewerImage = document.getElementById('viewer-image');
-        const viewerDots = document.getElementById('viewer-dots');
-        
-        // 设置当前图片
-        viewerImage.style.backgroundImage = slides[currentSlide].style.backgroundImage;
-        
-        // 创建指示器
-        viewerDots.innerHTML = '';
-        slides.forEach((slide, index) => {
-            const dot = document.createElement('span');
-            dot.className = `viewer-dot ${index === currentSlide ? 'active' : ''}`;
-            dot.setAttribute('data-index', index);
-            dot.addEventListener('click', () => {
-                goToSlide(index);
-                viewerImage.style.backgroundImage = slides[index].style.backgroundImage;
-                updateViewerDots(index);
-            });
-            viewerDots.appendChild(dot);
-        });
-        
-        viewer.classList.add('show');
-    }
-    
-    // 更新查看器指示器
-    function updateViewerDots(index) {
-        const dots = document.querySelectorAll('.viewer-dot');
-        dots.forEach(dot => dot.classList.remove('active'));
-        dots[index].classList.add('active');
-    }
-    
-    // 事件监听
-    prevBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        prevSlide();
-    });
-    
-    nextBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        nextSlide();
-    });
-    
-    // 点选指示器
-    dots.forEach(dot => {
-        dot.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const index = parseInt(dot.getAttribute('data-index'));
-            goToSlide(index);
-        });
-    });
-    
-    // 点击图片打开全屏查看器
-    slides.forEach(slide => {
-        slide.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openViewer();
-        });
-    });
-    
-    // 点击轮播容器也打开全屏查看器
-    carousel.addEventListener('click', (e) => {
-        if (e.target === carousel) {
-            openViewer();
-        }
-    });
-}
-
-// 全屏查看器控制
-function initImageViewer() {
-    const viewer = document.getElementById('image-viewer');
-    const closeBtn = viewer.querySelector('.viewer-close');
-    const prevBtn = viewer.querySelector('.viewer-prev');
-    const nextBtn = viewer.querySelector('.viewer-next');
-    const viewerImage = document.getElementById('viewer-image');
-    
-    let currentViewerIndex = 0; // 添加当前查看器索引
-    
-    // 关闭查看器
-    function closeViewer() {
-        viewer.classList.remove('show');
-    }
-    
-    // 切换到下一张图片
-    function nextViewerImage() {
-        const carousel = document.getElementById('register-carousel');
-        if (!carousel) return;
-        
-        const slides = carousel.querySelectorAll('.carousel-slide');
-        
-        // 计算下一张索引（循环）
-        currentViewerIndex = (currentViewerIndex + 1) % slides.length;
-        viewerImage.style.backgroundImage = slides[currentViewerIndex].style.backgroundImage;
-        updateViewerDots(currentViewerIndex);
-        
-        // 同时更新轮播图状态
-        goToCarouselSlide(currentViewerIndex);
-    }
-    
-    // 切换到上一张图片
-    function prevViewerImage() {
-        const carousel = document.getElementById('register-carousel');
-        if (!carousel) return;
-        
-        const slides = carousel.querySelectorAll('.carousel-slide');
-        
-        // 计算上一张索引（循环）
-        currentViewerIndex = (currentViewerIndex - 1 + slides.length) % slides.length;
-        viewerImage.style.backgroundImage = slides[currentViewerIndex].style.backgroundImage;
-        updateViewerDots(currentViewerIndex);
-        
-        // 同时更新轮播图状态
-        goToCarouselSlide(currentViewerIndex);
-    }
-    
-    // 更新查看器指示器
-    function updateViewerDots(index) {
-        const dots = document.querySelectorAll('.viewer-dot');
-        dots.forEach(dot => dot.classList.remove('active'));
-        dots[index].classList.add('active');
-        currentViewerIndex = index; // 更新当前索引
-    }
-    
-    // 更新轮播图状态
-    function goToCarouselSlide(index) {
-        const carousel = document.getElementById('register-carousel');
-        if (!carousel) return;
-        
-        const slides = carousel.querySelectorAll('.carousel-slide');
-        const dots = carousel.querySelectorAll('.carousel-dot');
-        
-        slides.forEach(slide => slide.classList.remove('active'));
-        dots.forEach(dot => dot.classList.remove('active'));
-        
-        slides[index].classList.add('active');
-        dots[index].classList.add('active');
-    }
-    
-    // 事件监听
-    closeBtn.addEventListener('click', closeViewer);
-    prevBtn.addEventListener('click', prevViewerImage);
-    nextBtn.addEventListener('click', nextViewerImage);
-    
-    // 点击背景关闭
-    viewer.addEventListener('click', (e) => {
-        if (e.target === viewer) {
-            closeViewer();
-        }
-    });
-    
-    // ESC键关闭
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && viewer.classList.contains('show')) {
-            closeViewer();
-        }
-    });
-    
-    // 点击指示器切换图片
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('viewer-dot')) {
-            const index = parseInt(e.target.getAttribute('data-index'));
-            currentViewerIndex = index;
-            const carousel = document.getElementById('register-carousel');
-            if (carousel) {
-                const slides = carousel.querySelectorAll('.carousel-slide');
-                viewerImage.style.backgroundImage = slides[index].style.backgroundImage;
-                updateViewerDots(index);
-                goToCarouselSlide(index);
+         // --- 修改：轮播图控制函数，现在接受 taskId 参数 ---
+        function initCarousel(taskId) {
+            const carouselId = `carousel-${taskId}`;
+            const carousel = document.getElementById(carouselId);
+            if (!carousel) return;
+            
+            const slides = carousel.querySelectorAll('.carousel-slide');
+            const dots = carousel.querySelectorAll('.carousel-dot');
+            const prevBtn = carousel.querySelector('.carousel-prev');
+            const nextBtn = carousel.querySelector('.carousel-next');
+            
+            let currentSlide = 0;
+            
+            // 切换到指定幻灯片
+            function goToSlide(index) {
+                // 边界检查
+                if (index < 0) index = slides.length - 1;
+                if (index >= slides.length) index = 0;
+                
+                // 更新幻灯片
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                slides[index].classList.add('active');
+                dots[index].classList.add('active');
+                
+                currentSlide = index;
             }
+            
+            // 下一张幻灯片
+            function nextSlide() {
+                goToSlide(currentSlide + 1);
+            }
+            
+            // 上一张幻灯片
+            function prevSlide() {
+                goToSlide(currentSlide - 1);
+            }
+            
+            // 事件监听
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                prevSlide();
+            });
+            
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                nextSlide();
+            });
+            
+            // 点选指示器
+            dots.forEach(dot => {
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(dot.getAttribute('data-index'));
+                    goToSlide(index);
+                });
+            });
+            
+            // --- 修改：点击图片进入全屏模式 ---
+            slides.forEach(slide => {
+                slide.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openFullscreenViewer(taskId, currentSlide);
+                });
+            });
+            
+            // 点击轮播容器也进入全屏模式 (移除全屏查看器调用)
+            carousel.addEventListener('click', (e) => {
+                if (e.target === carousel) {
+                   openFullscreenViewer(taskId, currentSlide); // 点击轮播容器进入全屏
+                }
+            });
         }
-    });
-}
+        // --- 修改结束 ---
 
-// 初始化全屏查看器
-initImageViewer();
+
+        // 移除全屏查看器控制函数 initImageViewer
+
+        // --- 新增全屏查看器相关逻辑 ---
+        const fullscreenViewer = document.getElementById('fullscreen-viewer');
+        const fullscreenImage = document.getElementById('fullscreen-image');
+        const fullscreenPrevBtn = document.getElementById('fullscreen-prev-btn');
+        const fullscreenNextBtn = document.getElementById('fullscreen-next-btn');
+        const fullscreenCloseBtn = document.getElementById('fullscreen-close-btn');
+        const fullscreenCounter = document.getElementById('fullscreen-counter');
+
+        let currentFullscreenTaskId = null;
+        let currentFullscreenSlideIndex = 0;
+        let currentFullscreenImages = [];
+
+        // 打开全屏查看器
+        function openFullscreenViewer(taskId, slideIndex) {
+            const images = taskCarouselImages[taskId] || [];
+            if (images.length === 0) return;
+
+            currentFullscreenTaskId = taskId;
+            currentFullscreenImages = images;
+            currentFullscreenSlideIndex = slideIndex;
+
+            showFullscreenImage();
+            fullscreenViewer.classList.add('show');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+
+        // 显示全屏图片
+        function showFullscreenImage() {
+            if (currentFullscreenImages.length === 0) return;
+
+            const imageUrl = currentFullscreenImages[currentFullscreenSlideIndex];
+            fullscreenImage.src = imageUrl;
+            fullscreenCounter.textContent = `${currentFullscreenSlideIndex + 1} / ${currentFullscreenImages.length}`;
+        }
+
+        // 全屏模式下切换到下一张图片
+        function nextFullscreenImage() {
+            if (currentFullscreenImages.length <= 1) return;
+            currentFullscreenSlideIndex = (currentFullscreenSlideIndex + 1) % currentFullscreenImages.length;
+            showFullscreenImage();
+        }
+
+        // 全屏模式下切换到上一张图片
+        function prevFullscreenImage() {
+            if (currentFullscreenImages.length <= 1) return;
+            currentFullscreenSlideIndex = (currentFullscreenSlideIndex - 1 + currentFullscreenImages.length) % currentFullscreenImages.length;
+            showFullscreenImage();
+        }
+
+        // 关闭全屏查看器
+        function closeFullscreenViewer() {
+            fullscreenViewer.classList.remove('show');
+            document.body.style.overflow = ''; // 恢复背景滚动
+            // 重置状态
+            currentFullscreenTaskId = null;
+            currentFullscreenImages = [];
+            currentFullscreenSlideIndex = 0;
+        }
+
+        // 事件监听
+        fullscreenPrevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevFullscreenImage();
+        });
+
+        fullscreenNextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextFullscreenImage();
+        });
+
+        fullscreenCloseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeFullscreenViewer();
+        });
+
+        // 点击全屏查看器背景关闭
+        fullscreenViewer.addEventListener('click', (e) => {
+            if (e.target === fullscreenViewer) {
+                closeFullscreenViewer();
+            }
+        });
+
+        // 键盘事件支持 (Esc 关闭, 左右箭头切换)
+        document.addEventListener('keydown', (e) => {
+            if (fullscreenViewer.classList.contains('show')) {
+                if (e.key === 'Escape') {
+                    closeFullscreenViewer();
+                } else if (e.key === 'ArrowLeft') {
+                    prevFullscreenImage();
+                } else if (e.key === 'ArrowRight') {
+                    nextFullscreenImage();
+                }
+            }
+        });
+        // --- 新增全屏查看器相关逻辑结束 ---
 
     </script>
 </body>
